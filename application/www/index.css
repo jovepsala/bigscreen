@@ -1,0 +1,36 @@
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+	background-color: #000;
+	font-family: Arial, Verdana, Helvetica;
+}
+
+.bigscreeniframe {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+
+.messagediv {
+	display: none;
+	position: absolute;
+	left: 2px;
+	top: 2px;			
+	font-size: 18px; 
+	margin: 0px;
+	padding: 10px;
+	width: auto;
+	border: 1px solid #D7D7D7;
+	vertical-align: top;
+	font-weight: bold;
+	color: #000;
+	background-color: #FFF;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}

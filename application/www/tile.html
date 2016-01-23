@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link href="tile.css" rel="stylesheet" type="text/css" media="screen">
+
+	<script src="http://10.0.0.1/js/jquery-1.11.3.min.js"></script>
+	<script src="http://10.0.0.1/lib/spaceifyinitialize.js"></script>							<!-- Use Spaceify's classes. Wait for spaceifyReady event! -->
+
+	<title></title>
+
+	<script>
+		window.addEventListener("spaceifyReady", function()
+			{
+			var move = true;
+
+			jQuery("#slided0").css({left: 0 * 276, visibility: "visible"});
+			jQuery("#slided1").css({left: 1 * 276, visibility: "visible"});
+			jQuery("#slided2").css({left: 2 * 276, visibility: "visible"});
+			jQuery("#slided3").css({left: 3 * 276, visibility: "visible"});
+			jQuery("#slideTile").css({visibility: "visible"});
+
+			var container = jQuery("#container");
+			var slideChild = container.children("div");
+
+			window.setInterval(function()
+				{
+				move = true;
+				slideChild.stop().animate({ left: "-=" + 276 }, 300, function()
+					{
+					if(move)
+						{
+						move = false;
+						lastItem = container.children("div:first");
+						lastItem.remove().appendTo(container);
+						}
+
+						lastItem.css("left", 3 * 276);
+					});
+				}, 2000);
+			});
+
+		window.addEventListener("click", function()
+			{
+			window.open("http://10.0.0.1/service/spaceify/bigscreen", "_blank");
+			});
+	</script>
+</head>
+
+<body style="overflow: hidden;">
+	<div class="slideTile" style="visibility: hidden; overflow: hidden;" id="slideTile">
+		<div class="container" id="container">
+			<div class="slide" id="slided0">					<!-- Bigscreen -->
+				<img src="images/bigscreen.png" id="slidei0">
+
+				<div class="slideText">
+					Bigscreen
+				</div>
+
+				<div class="slideText">
+					Spaceify Inc.
+				</div>
+			</div>
+
+			<div class="slide" id="slided1">					<!-- Pictures -->
+				<img src="images/images.png" id="slidei1">
+
+				<div class="slideText">
+					Display
+				</div>
+
+				<div class="slideText">
+					Images
+				</div>
+			</div>
+
+			<div class="slide" id="slided2">					<!-- Movies -->
+				<img src="images/movies.png" id="slidei2">
+
+				<div class="slideText">
+					Display
+				</div>
+
+				<div class="slideText">
+					Movies
+				</div>
+			</div>
+
+			<div class="slide" id="slided3">					<!-- Documents -->
+				<img src="images/documents.png" id="slidei3">
+
+				<div class="slideText">
+					Display
+				</div>
+
+				<div class="slideText">
+					Documents
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>
