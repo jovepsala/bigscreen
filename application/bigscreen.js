@@ -15,14 +15,9 @@ function BigScreen()
 var self = this;
 
 var bigscreens = {};
-var bs_service = bs_service_secure = null;
-var bs_service_name = "spaceify.org/services/bigscreen";
+var bigscreenService = null;
 
-	// CONNECTION LISTENERS -- -- -- -- -- -- -- -- -- -- //
-var onClientConnected = function(serviceObj)
-	{
-	}
-
+	// CONNECTIONS  -- -- -- -- -- -- -- -- -- -- //
 var onClientDisconnected = function(serviceObj)
 	{
 	if(bigscreens[serviceObj.id])
@@ -30,17 +25,17 @@ var onClientDisconnected = function(serviceObj)
 	}
 
 	// EXPOSED JSON-RPC METHODS -- -- -- -- -- -- -- -- -- -- //
-var bigScreenConnect = function(bs_id, rpcObj)
+var bigScreenConnect = function(bigscreenId, rpcObj)
 	{
-	bigscreens[rpcObj.id] = {bs_id: bs_id, is_secure: rpcObj.is_secure};	// Add big screen to the connected big screens
+	bigscreens[rpcObj.id] = {bigscreenId: bigscreenId};						// Add big screen to the connected big screens
 	}
 
-var loadContent = function(url, bs_id, content_type)
+var loadContent = function(url, bigscreenId, contentType)
 	{ // Clients call this to show their content on the big screen IFRAME(s).
-	for(var id in bigscreens)												// Send content URL/type to big screens having the bs_id or all the big screens
+	for(var id in bigscreens)												// Send content URL/type to big screens having the bigscreenId or all the big screens
 		{
-		if(bigscreens[id].bs_id == bs_id || !bs_id)
-			(!bigscreens[id].is_secure ? bs_service : bs_service_secure).callRpc("loadContent", [url, content_type], self, null, id);
+		if(bigscreens[id].bigscreenId == bigscreenId || !bigscreenId)
+			bigscreenService.callRpc("loadContent", [url, contentType], self, null, id);
 		}
 	}
 
@@ -49,8 +44,8 @@ var getBigScreenIds = function()
 	var ids = [];
 	for(var id in bigscreens)
 		{
-		if(!ids.indexOf(bigscreens[id].bs_id))
-			ids.push(bigscreens[id].bs_id);
+		if(!ids.indexOf(bigscreens[id].bigscreenId))
+			ids.push(bigscreens[id].bigscreenId);
 		}
 
 	return ids;
@@ -59,20 +54,17 @@ var getBigScreenIds = function()
 	// IMPLEMENT start AND fail IN YOUR APPLICATION!!! -- -- -- -- -- -- -- -- -- -- //
 self.start = function()
 	{
-	bs_service = spaceify.getProvidedService(bs_service_name);
-	bs_service_secure = spaceify.getProvidedServiceSecure(bs_service_name);
+	bigscreenService = spaceify.getProvidedService("spaceify.org/services/bigscreen");
 
-	spaceify.exposeRpcMethodProvided("loadContent", self, loadContent, bs_service_name);
-	spaceify.exposeRpcMethodProvided("getBigScreenIds", self, getBigScreenIds, bs_service_name);
-	spaceify.exposeRpcMethodProvided("bigScreenConnect", self, bigScreenConnect, bs_service_name);
+	bigscreenService.exposeRpcMethod("loadContent", self, loadContent);
+	bigscreenService.exposeRpcMethod("getBigScreenIds", self, getBigScreenIds);
+	bigscreenService.exposeRpcMethod("bigScreenConnect", self, bigScreenConnect);
 
-	spaceify.setConnectionListenersProvided(onClientConnected, bs_service_name);
-	spaceify.setDisconnectionListenersProvided(onClientDisconnected, bs_service_name);
+	bigscreenService.setDisconnectionListener(onClientDisconnected);
 	}
 
 self.fail = function(err)
-	{
-	
+	{	
 	}
 
 var stop = function()

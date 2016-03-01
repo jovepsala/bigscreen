@@ -12,14 +12,14 @@
 	<link href="index.css" rel="stylesheet" type="text/css" media="screen">
 
 	<script type="text/javascript">
-		var bs_id = "default";
+		var bigscreenId = "default";
 		var bigScreen = null;
 
 			// DOM AND EVENTS -- -- -- -- -- -- -- -- -- -- //
 		window.addEventListener("spaceifyReady", function()
 			{
 			var getobj = new SpaceifyNetwork().parseGET(window.location.href);					// Big screen id can be passed in the URL
-			bs_id = ("bs_id" in getobj ? getobj.bs_id : "default");
+			bigscreenId = ("bigscreenId" in getobj ? getobj.bigscreenId : "default");
 
 			bigScreen = new BigScreen();
 			bigScreen.resize();
@@ -38,8 +38,8 @@
 			var self = this;
 
 			var timeOut = null;
-			var content_type = "";
-			var is_initialized = false;
+			var contentType = "";
+			var isInitialized = false;
 			var service_name = "spaceify.org/services/bigscreen";
 
 			var config = new SpaceifyConfig();
@@ -56,15 +56,15 @@
 					{
 					if(service && service.getStatus() == config.CONNECTED)
 						{
-						if(!is_initialized)
+						if(!isInitialized)
 							{ // Same service object is used even after disconnection and there is no need to initialize it more than once.
-							is_initialized = true;
+							isInitialized = true;
 							service.setDisconnectionListener(reconnectService);
 							service.exposeRpcMethod("loadContent", self, loadContent);
 							}
 
 						showMessage(language.CONNECTED);
-						service.callRpc("bigScreenConnect", [bs_id], null, null);
+						service.callRpc("bigScreenConnect", [bigscreenId], null, null);
 						}						
 					else
 						reconnectService(service);
@@ -91,9 +91,9 @@
 			var loadContent = function(url, type)
 				{
 				// Load new content page to this big screen. If type doesn't change, the same page is used.
-				if(content_type != type || !type)
+				if(contentType != type || !type)
 					{
-					content_type = type;
+					contentType = type;
 					$("#bigscreen_if").attr("src", url);
 					}
 				}

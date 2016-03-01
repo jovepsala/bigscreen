@@ -7,7 +7,7 @@
   ],
   "name": "Bigscreen",
   "unique_name": "spaceify/bigscreen",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "type": "sandboxed",
   "category": "multimedia",
   "start_command": "node bigscreen",
