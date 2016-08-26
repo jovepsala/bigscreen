@@ -7,16 +7,17 @@
   ],
   "name": "Bigscreen",
   "unique_name": "spaceify/bigscreen",
-  "version": "1.1.0",
+  "version": "1.1.3",
   "type": "sandboxed",
   "category": "multimedia",
   "start_command": "node bigscreen",
   "developer": {
-    "name": "Spaceify Inc.",
+    "name": "Spaceify Oy",
     "url": "http://spaceify.net",
     "email": "admin@spaceify.net"
   },
   "short_description": "Big screen hub.",
+  "appstore_description": "Big screen is a framework for displaying content on web browsers. The content can be, for example, images, movies and documents.",
   "license": "MIT",
   "creation_date": "2015-01-28 10:07:00",
   "implements": [

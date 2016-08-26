@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 /**
- * BigScreen, 18.10.2013 Spaceify Inc.
- *
- * rpcObj = { is_secure: Boolean, id: Number, server_type: String, remotePort: Number, remoteAddress: Number, origin: String }
- * serviceObj = { id: Number, is_secure: Boolean, service_name: String, server_type: String, remotePort: Number, remoteAddress: Number, origin: String }
+ * BigScreen, 18.10.2013 Spaceify Oy
  *
  * @class BigScreen
  */
@@ -14,38 +11,38 @@ function BigScreen()
 {
 var self = this;
 
-var bigscreens = {};
+var bigscreenIds = {};
 var bigscreenService = null;
 
 	// CONNECTIONS  -- -- -- -- -- -- -- -- -- -- //
-var onClientDisconnected = function(serviceObj)
+var onClientDisconnected = function(connectionId)
 	{
-	if(bigscreens[serviceObj.id])
-		delete bigscreens[serviceObj.id];
+	if(connectionId in bigscreenIds)
+		delete bigscreenIds[connectionId];
 	}
 
 	// EXPOSED JSON-RPC METHODS -- -- -- -- -- -- -- -- -- -- //
-var bigScreenConnect = function(bigscreenId, rpcObj)
-	{
-	bigscreens[rpcObj.id] = {bigscreenId: bigscreenId};						// Add big screen to the connected big screens
+var bigScreenConnect = function(bigscreenId)
+	{ // Each connected bigscreen web page has an bigscreenId (e.g. "default")
+	bigscreenIds[arguments[arguments.length-1].connectionId] = {bigscreenId: bigscreenId};	// Add big screen to the connected big screens
 	}
 
 var loadContent = function(url, bigscreenId, contentType)
-	{ // Clients call this to show their content on the big screen IFRAME(s).
-	for(var id in bigscreens)												// Send content URL/type to big screens having the bigscreenId or all the big screens
+	{ // Clients show their content on the big screen web pages having the bigscreenId
+	for(var connectionId in bigscreenIds)																// Send content URL/type to big screens having the bigscreenId or all the big screens
 		{
-		if(bigscreens[id].bigscreenId == bigscreenId || !bigscreenId)
-			bigscreenService.callRpc("loadContent", [url, contentType], self, null, id);
+		if(bigscreenIds[connectionId].bigscreenId == bigscreenId || !bigscreenId)
+			bigscreenService.callRpc("loadContent", [url, contentType], self, null, connectionId);
 		}
 	}
 
 var getBigScreenIds = function()
-	{ // Return a list of unique big screen ids.
+	{ // Return a list of unique Bigscreen ids.
 	var ids = [];
-	for(var id in bigscreens)
+	for(var connectionId in bigscreenIds)
 		{
-		if(!ids.indexOf(bigscreens[id].bigscreenId))
-			ids.push(bigscreens[id].bigscreenId);
+		if(!ids.indexOf(bigscreenIds[connectionId].bigscreenId))
+			ids.push(bigscreenIds[connectionId].bigscreenId);
 		}
 
 	return ids;

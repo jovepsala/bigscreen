@@ -5,25 +5,26 @@
 
 	<title>Bigscreen</title>
 
-	<script src="http://10.0.0.1//js/jquery-1.11.3.min.js"></script>
-	<script src="http://10.0.0.1/libs/spaceifyinitialize.js"></script>						<!-- Use Spaceify's classes. Wait for spaceifyReady event! -->
+	<script src="http://edge.spaceify.net/libs/spaceifyinitialize.js?jquery"></script>					<!-- Get Spaceify's classes and jQuery. Wait for spaceifyReady event! -->
 
-	<script src="language.js"></script>
 	<link href="index.css" rel="stylesheet" type="text/css" media="screen">
 
 	<script type="text/javascript">
-		var bigscreenId = "default";
+		var spaceify = null;
 		var bigScreen = null;
+		var bigscreenId = "default";
+		var bigScreenService = null;
 
 			// DOM AND EVENTS -- -- -- -- -- -- -- -- -- -- //
 		window.addEventListener("spaceifyReady", function()
 			{
-			var getobj = new SpaceifyNetwork().parseGET(window.location.href);					// Big screen id can be passed in the URL
-			bigscreenId = ("bigscreenId" in getobj ? getobj.bigscreenId : "default");
+			var query = new SpaceifyNetwork().parseQuery(window.location.href);				// Big screen id could be passed in the URL
+			bigscreenId = ("bigscreenId" in query ? query.bigscreenId : "default");
+
+			spaceify = new SpaceifyApplication();
 
 			bigScreen = new BigScreen();
-			bigScreen.resize();
-			bigScreen.connect();
+			spaceify.start(bigScreen, "spaceify/bigscreen");
 			});
 
 		window.addEventListener("resize", function()
@@ -39,58 +40,43 @@
 
 			var timeOut = null;
 			var contentType = "";
-			var isInitialized = false;
-			var service_name = "spaceify.org/services/bigscreen";
 
-			var config = new SpaceifyConfig();
-			var utility = new SpaceifyUtility();
-			var services = new SpaceifyService();
-
-			var MESSAGE_TIMEOUT = 5 * 1000;
-			var RECONNECT_TIMEOUT = 10 * 1000;
-
-				// CONNECTION -- -- -- -- -- -- -- -- -- -- //
-			self.connect = function()
+				// INITIALIZATION -- -- -- -- -- -- -- -- -- -- //
+			self.start = function()
 				{
-				services.connectService(service_name, function(err, service)
-					{
-					if(service && service.getStatus() == config.CONNECTED)
-						{
-						if(!isInitialized)
-							{ // Same service object is used even after disconnection and there is no need to initialize it more than once.
-							isInitialized = true;
-							service.setDisconnectionListener(reconnectService);
-							service.exposeRpcMethod("loadContent", self, loadContent);
-							}
+				self.resize();
 
-						showMessage(language.CONNECTED);
-						service.callRpc("bigScreenConnect", [bigscreenId], null, null);
-						}						
-					else
-						reconnectService(service);
-					});
+				bigScreenService = spaceify.getRequiredService("spaceify.org/services/bigscreen");
+
+				bigScreenService.setConnectionListener(connectionListener);
+				bigScreenService.setDisconnectionListener(disconnectionListener);
+				bigScreenService.exposeRpcMethod("loadContent", self, loadContent);
+
+				connectionListener(/*bigScreenService.getId()*/)
 				}
 
-			var reconnectService = function(service)
+			self.fail = function()
 				{
-				var status = (service ? service.getStatus() : config.CONNECTION_UNINITIALIZED);
+				}
+				
+				// CONNECTION LISTENERS -- -- -- -- -- -- -- -- -- -- //
+			var connectionListener = function(connectionId)
+				{
+				showMessage("Connected to the big screen hub.");
 
-				if(status == config.CONNECTION_LOST)
-					showMessage(language.E_CONNECTION_LOST);
-				else if(status == config.CONNECTION_UNINITIALIZED)
-					showMessage(language.E_CONNECTION_UNINITIALIZED);
-				else if(status == config.CONNECTION_FAILED)
-					showMessage(utility.combineErrors(language.E_CONNECTION_FAILED, service.getError()));
+				bigScreenService.callRpc("bigScreenConnect", [bigscreenId], null, null);
+				}
+
+			var disconnectionListener = function(connectionId)
+				{
+				showMessage("No connection to the big screen hub.");
 
 				$("#bigscreen_if").attr("src", "")
-
-				window.setTimeout(self.connect, RECONNECT_TIMEOUT);										// Try to reconnect
 				}
 
 				// EXPOSED RPC METHODS -- -- -- -- -- -- -- -- -- -- //
 			var loadContent = function(url, type)
-				{
-				// Load new content page to this big screen. If type doesn't change, the same page is used.
+				{ // Load new content page to this big screen. If type doesn't change, the same page is used.
 				if(contentType != type || !type)
 					{
 					contentType = type;
@@ -108,23 +94,18 @@
 					}
 				}
 
-			var showMessage = function(err)
+			var showMessage = function(errstr)
 				{
-				var errstr = utility.errorsToString(err);
-
 				$("#message_div").empty().append($.parseHTML(errstr)).show();
 
 				if(timeOut != null)
-					{
 					clearTimeout(timeOut);
-					timeOut = null;
-					}
 
 				timeOut = setTimeout(function()
 					{
 					timeOut = null;
 					$("#message_div").hide();
-					}, MESSAGE_TIMEOUT);
+					}, 5000);
 
 				console.log(errstr);
 				}
